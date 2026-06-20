@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Técnico Estática Fluidos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-content { display: none; }
+        .active-tab { display: block; }
+        .math { font-family: 'Courier New', Courier, monospace; background: #e2e8f0; padding: 0.2rem 0.4rem; border-radius: 4px; display: inline-block; margin: 0.2rem 0; }
+        .section-box { border-left: 6px solid #1e3a8a; }
+        .equation-block { background: #f8fafc; border: 1px solid #cbd5e1; padding: 1rem; margin: 1rem 0; font-family: monospace; text-align: center; }
+    </style>
+</head>
+<body class="bg-gray-100 text-slate-800">
+
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-80 bg-slate-900 text-white p-6 shadow-2xl flex flex-col">
+            <h2 class="text-xl font-bold mb-8 text-blue-400 border-b border-blue-800 pb-2">Capítulo 3: Estática Detallada</h2>
+            <nav class="space-y-3 flex-1 text-gray-300 overflow-y-auto">
+                <button onclick="showTab('presion')" class="w-full text-left p-2 hover:bg-blue-800 rounded">1. Definición y Presión</button>
+                <button onclick="showTab('densidad')" class="w-full text-left p-2 hover:bg-blue-800 rounded">2. Densidad Variable (Integración)</button>
+                <button onclick="showTab('superficies')" class="w-full text-left p-2 hover:bg-blue-800 rounded">3. Superficies Planas y CP</button>
+                <button onclick="showTab('curvas')" class="w-full text-left p-2 hover:bg-blue-800 rounded">4. Superficies Curvas (Vectores)</button>
+                <button onclick="showTab('quiz')" class="w-full text-left p-3 mt-6 bg-blue-700 text-white font-bold rounded shadow-lg">Cuestionario Técnico</button>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-10 overflow-y-auto">
+            
+            <div id="presion" class="tab-content active-tab bg-white p-8 rounded shadow section-box">
+                <h1 class="text-3xl font-bold text-blue-900 mb-4">Conceptos Fundamentales</h1>
+                <p>La presión es una magnitud escalar (a pesar de actuar como fuerza normal) definida por:</p>
+                <div class="equation-block">P = \lim_{\Delta A \to 0} \frac{\Delta F_n}{\Delta A} = \frac{dF_n}{dA}</div>
+                <p class="mt-4"><strong>Distinciones críticas:</strong></p>
+                <ul class="list-disc ml-6 mt-2 space-y-2">
+                    <li><strong>Presión Absoluta:</strong> Presión termodinámica real.</li>
+                    <li><strong>Presión Manométrica:</strong> Medición relativa a la presión local (<span class="math">P_{atm}</span>). Es la presión que "siente" una estructura sumergida (como la pared de un tanque).</li>
+                </ul>
+            </div>
+
+            <div id="densidad" class="tab-content bg-white p-8 rounded shadow section-box">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4">Caso: Densidad Variable ($\rho(s)$)</h2>
+                <p>En fluidos estratificados (Ej. estanque solar salino), la densidad depende de la profundidad <span class="math">s</span>. El balance de fuerzas diferencial <span class="math">dP/dz = -\rho(z)g</span> nos obliga a integrar:</p>
+                <div class="equation-block">P(s) = P_0 + \int_{0}^{s} \rho(s')g \, ds'</div>
+                <p class="mt-2 text-sm text-gray-600">Nota: El archivo U_2_11 ejemplifica esto con la función de densidad <span class="math">\rho = \rho_0 \sqrt{1 + \tan^2(\frac{\pi s}{4H})}</span>. Se requiere evaluar la integral del gradiente para obtener la presión precisa en el fondo.</p>
+            </div>
+
+            <div id="superficies" class="tab-content bg-white p-8 rounded shadow section-box">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4">Fuerzas sobre Superficies Planas</h2>
+                <p>La magnitud de la fuerza resultante <span class="math">F_R</span> sobre una superficie plana sumergida se calcula como:</p>
+                <div class="equation-block">F_R = P_C A = (\rho g h_C) A</div>
+                <p>El <strong>Centro de Presión ($y_p$)</strong> es el punto de aplicación de <span class="math">F_R</span>. Siendo <span class="math">I_{xx,c}</span> el momento de inercia respecto al centroide:</p>
+                <div class="equation-block">y_p = y_c + \frac{I_{xx,c}}{y_c A}</div>
+                <p>Para inclinaciones <span class="math">\theta</span>, recuerda que <span class="math">h_c = y_c \sin(\theta)</span>. La excentricidad (<span class="math">y_p - y_c</span>) indica cuánto se aleja la resultante del centro geométrico.</p>
+            </div>
+
+            <div id="curvas" class="tab-content bg-white p-8 rounded shadow section-box">
+                <h2 class="text-2xl font-bold text-blue-900 mb-4">Superficies Curvas (Análisis Vectorial)</h2>
+                <p>Se utiliza el balance de fuerzas: <span class="math">F_R = \sqrt{F_x^2 + F_y^2}</span>.</p>
+                <ul class="list-decimal ml-6 mt-4 space-y-2">
+                    <li><strong>$F_x$ (Horizontal):</strong> Fuerza ejercida sobre la proyección de la superficie curva en un plano vertical.</li>
+                    <li><strong>$F_y$ (Vertical):</strong> Resultante del balance <span class="math">F_v = |F_{y, interior} - W_{fluido}|</span>.</li>
+                </ul>
+                <div class="bg-blue-50 p-4 mt-4 italic">
+                    Referencia U_2_12: El peso del bloque de fluido (<span class="math">W = \rho g V</span>) debe ser cuidadosamente restado de la fuerza vertical ascendente para obtener la fuerza neta que actúa sobre la estructura.
+                </div>
+            </div>
+
+            <div id="quiz" class="tab-content bg-white p-8 rounded shadow">
+                <h2 class="text-2xl font-bold text-blue-900 mb-6">Cuestionario Técnico (10 Reactivos)</h2>
+                <div id="quiz-container" class="space-y-6"></div>
+                <button onclick="checkAnswers()" class="bg-blue-900 text-white p-3 rounded font-bold hover:bg-blue-700">Calificar Evaluación</button>
+                <div id="result" class="mt-4 text-xl font-bold"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+            document.getElementById(id).classList.add('active-tab');
+        }
+
+        const questions = [
+            { q: "1. ¿Cómo se expresa la presión manométrica respecto a la absoluta?", options: ["P_man = P_abs - P_atm", "P_man = P_atm - P_abs", "P_man = P_abs * P_atm", "No existe relación"], a: 0 },
+            { q: "2. Según la Ley de Pascal, la presión en un punto de un fluido estático es:", options: ["Solo vertical", "Independiente de la dirección", "Mayor en el fondo", "Directamente proporcional a la viscosidad"], a: 1 },
+            { q: "3. La presión en un fluido estático de densidad constante aumenta de manera:", options: ["Lineal con la profundidad", "Exponencial con la profundidad", "Constante", "Cuadrática"], a: 0 },
+            { q: "4. En superficies curvas, la fuerza vertical neta $F_v$ considera el peso del bloque:", options: ["Sumado a F_y", "Restado de F_y", "Independiente de F_y", "No se considera"], a: 1 },
+            { q: "5. Problema: Fluido ($\rho=1000 kg/m^3$), $h=5m$. ¿P_man al fondo?", options: ["49.05 kPa", "10 kPa", "98.1 kPa", "5 kPa"], a: 0 },
+            { q: "6. Problema: Placa $A=2m^2, h_c=3m, \gamma=9810 N/m^3$. $F_R = P_c A$. ¿Resultado?", options: ["58.86 kN", "29.43 kN", "10 kN", "5 kN"], a: 0 },
+            { q: "7. Problema: Para un círculo de radio $R$, $I_{xx,c} = \pi R^4 / 4$. Si $R=1m$, ¿$I_{xx,c}$?", options: ["0.785 m^4", "3.14 m^4", "1.57 m^4", "0.5 m^4"], a: 0 },
+            { q: "8. Problema: Si $\\rho$ es función de $s$, la presión en $H$ es $P_0 + \\int_{0}^{H} \rho(s)g ds$. ¿Qué método se requiere?", options: ["Integración", "Aritmética simple", "Derivación", "Interpolación lineal"], a: 0 },
+            { q: "9. Problema: Superficie curva, $F_y=50kN$ (ascendente), $W=5kN$ (descendente). ¿$F_v$?", options: ["45 kN", "55 kN", "50 kN", "5 kN"], a: 0 },
+            { q: "10. Problema: Compuerta plana inclinada $\\theta=90^{\\circ}$ (vertical). $h_c = y_c \\sin(\\theta)$. ¿$h_c$?", options: ["y_c", "0", "y_c * 0.5", "y_c * tan(90)"], a: 0 }
+        ];
+
+        const container = document.getElementById('quiz-container');
+        questions.forEach((item, index) => {
+            container.innerHTML += `<div class="border-b pb-4"><p class="font-semibold text-slate-800">${item.q}</p>${item.options.map((o,i) => `<label class="block ml-4 text-slate-600"><input type="radio" name="q${index}" value="${i}"> ${o}</label>`).join('')}</div>`;
+        });
+
+        function checkAnswers() {
+            let s = 0; questions.forEach((item, i) => { const r = document.querySelector(`input[name="q${i}"]:checked`); if(r && parseInt(r.value) === item.a) s++; });
+            document.getElementById('result').innerText = `Tu calificación técnica: ${s}/10`;
+        }
+    </script>
+</body>
+</html>
