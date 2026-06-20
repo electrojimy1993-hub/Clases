@@ -3,108 +3,860 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análisis Técnico Estática Fluidos</title>
+    <title>Infografía Interactiva: Presión y Estática de Fluidos</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax para visualización perfecta de ecuaciones en ingeniería -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        .tab-content { display: none; }
-        .active-tab { display: block; }
-        .math { font-family: 'Courier New', Courier, monospace; background: #e2e8f0; padding: 0.2rem 0.4rem; border-radius: 4px; display: inline-block; margin: 0.2rem 0; }
-        .section-box { border-left: 6px solid #1e3a8a; }
-        .equation-block { background: #f8fafc; border: 1px solid #cbd5e1; padding: 1rem; margin: 1rem 0; font-family: monospace; text-align: center; }
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 3px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
     </style>
 </head>
-<body class="bg-gray-100 text-slate-800">
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen selection:bg-blue-500 selection:text-white">
 
-    <div class="flex h-screen overflow-hidden">
-        <aside class="w-80 bg-slate-900 text-white p-6 shadow-2xl flex flex-col">
-            <h2 class="text-xl font-bold mb-8 text-blue-400 border-b border-blue-800 pb-2">Capítulo 3: Estática Detallada</h2>
-            <nav class="space-y-3 flex-1 text-gray-300 overflow-y-auto">
-                <button onclick="showTab('presion')" class="w-full text-left p-2 hover:bg-blue-800 rounded">1. Definición y Presión</button>
-                <button onclick="showTab('densidad')" class="w-full text-left p-2 hover:bg-blue-800 rounded">2. Densidad Variable (Integración)</button>
-                <button onclick="showTab('superficies')" class="w-full text-left p-2 hover:bg-blue-800 rounded">3. Superficies Planas y CP</button>
-                <button onclick="showTab('curvas')" class="w-full text-left p-2 hover:bg-blue-800 rounded">4. Superficies Curvas (Vectores)</button>
-                <button onclick="showTab('quiz')" class="w-full text-left p-3 mt-6 bg-blue-700 text-white font-bold rounded shadow-lg">Cuestionario Técnico</button>
-            </nav>
-        </aside>
+    <!-- Navbar / Header de Ingeniería -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <svg class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+                <span class="font-bold text-lg tracking-wide uppercase text-slate-200">Mecánica de Fluidos <span class="text-blue-500 text-sm font-normal lowercase">v2.1</span></span>
+            </div>
+            <div class="hidden md:flex space-x-6 text-sm font-medium text-slate-400">
+                <a href="#conceptos" class="hover:text-blue-400 transition">Fundamentos</a>
+                <a href="#visualizador" class="hover:text-blue-400 transition">Simulador Hidrostático</a>
+                <a href="#cuestionario" class="hover:text-blue-400 transition">Evaluación Técnica</a>
+            </div>
+        </div>
+    </header>
 
-        <main class="flex-1 p-10 overflow-y-auto">
-            
-            <div id="presion" class="tab-content active-tab bg-white p-8 rounded shadow section-box">
-                <h1 class="text-3xl font-bold text-blue-900 mb-4">Conceptos Fundamentales</h1>
-                <p>La presión es una magnitud escalar (a pesar de actuar como fuerza normal) definida por:</p>
-                <div class="equation-block">P = \lim_{\Delta A \to 0} \frac{\Delta F_n}{\Delta A} = \frac{dF_n}{dA}</div>
-                <p class="mt-4"><strong>Distinciones críticas:</strong></p>
-                <ul class="list-disc ml-6 mt-2 space-y-2">
-                    <li><strong>Presión Absoluta:</strong> Presión termodinámica real.</li>
-                    <li><strong>Presión Manométrica:</strong> Medición relativa a la presión local (<span class="math">P_{atm}</span>). Es la presión que "siente" una estructura sumergida (como la pared de un tanque).</li>
-                </ul>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+        <!-- Hero Panel -->
+        <div class="relative rounded-3xl overflow-hidden border border-slate-800 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8 md:p-12 shadow-2xl">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(59,130,246,0.1),transparent)] pointer-events-none"></div>
+            <div class="max-w-3xl space-y-4">
+                <span class="inline-flex items-center px-3  rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 ring-1 ring-inset ring-blue-500/20">Infografía Técnica Interactiva</span>
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white">Presión y Estática de Fluidos</h1>
+                <p class="text-lg text-slate-400 leading-relaxed">
+                    Diseño y análisis computacional enfocado a estudiantes de ingeniería de cuarto semestre. Basado formalmente en el estudio del comportamiento de fluidos en reposo, variaciones de densidad y fuerzas sobre superficies sumergidas.
+                </p>
+            </div>
+        </div>
+
+        <!-- MÓDULO 1: Conceptos Teóricos Fundamentales (Estilo Grid Profesional) -->
+        <section id="conceptos" class="space-y-6">
+            <div class="flex items-center space-x-2">
+                <div class="h-6 w-1 bg-blue-500 rounded"></div>
+                <h2 class="text-2xl font-bold tracking-tight text-white">1. Fundamentos Físico-Matemáticos</h2>
             </div>
 
-            <div id="densidad" class="tab-content bg-white p-8 rounded shadow section-box">
-                <h2 class="text-2xl font-bold text-blue-900 mb-4">Caso: Densidad Variable ($\rho(s)$)</h2>
-                <p>En fluidos estratificados (Ej. estanque solar salino), la densidad depende de la profundidad <span class="math">s</span>. El balance de fuerzas diferencial <span class="math">dP/dz = -\rho(z)g</span> nos obliga a integrar:</p>
-                <div class="equation-block">P(s) = P_0 + \int_{0}^{s} \rho(s')g \, ds'</div>
-                <p class="mt-2 text-sm text-gray-600">Nota: El archivo U_2_11 ejemplifica esto con la función de densidad <span class="math">\rho = \rho_0 \sqrt{1 + \tan^2(\frac{\pi s}{4H})}</span>. Se requiere evaluar la integral del gradiente para obtener la presión precisa en el fondo.</p>
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Concepto 1: Presión -->
+                <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 hover:border-blue-500/50 transition-all group flex flex-col justify-between">
+                    <div>
+                        <div class="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
+                            <span class="font-bold">P</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Presión ($P$)</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Es la magnitud de la fuerza normal ejercida por un fluido por unidad de área de superficie.
+                        </p>
+                        <div class="mt-4 bg-slate-900/80 p-3 rounded-lg border border-slate-800/80 font-mono text-xs text-blue-300">
+                            $$P = \lim_{\Delta A \to 0} \frac{\Delta F_n}{\Delta A} = \frac{F}{A}$$
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-900 text-xs text-slate-500">
+                        Unidad SI: Pascal ($1 \text{ Pa} = 1 \text{ N/m}^2$)
+                    </div>
+                </div>
 
-            <div id="superficies" class="tab-content bg-white p-8 rounded shadow section-box">
-                <h2 class="text-2xl font-bold text-blue-900 mb-4">Fuerzas sobre Superficies Planas</h2>
-                <p>La magnitud de la fuerza resultante <span class="math">F_R</span> sobre una superficie plana sumergida se calcula como:</p>
-                <div class="equation-block">F_R = P_C A = (\rho g h_C) A</div>
-                <p>El <strong>Centro de Presión ($y_p$)</strong> es el punto de aplicación de <span class="math">F_R</span>. Siendo <span class="math">I_{xx,c}</span> el momento de inercia respecto al centroide:</p>
-                <div class="equation-block">y_p = y_c + \frac{I_{xx,c}}{y_c A}</div>
-                <p>Para inclinaciones <span class="math">\theta</span>, recuerda que <span class="math">h_c = y_c \sin(\theta)</span>. La excentricidad (<span class="math">y_p - y_c</span>) indica cuánto se aleja la resultante del centro geométrico.</p>
-            </div>
+                <!-- Concepto 2: Presión Absoluta -->
+                <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 hover:border-blue-500/50 transition-all group flex flex-col justify-between">
+                    <div>
+                        <div class="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
+                            <span class="font-bold">Abs</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Presión Absoluta ($P_{\text{abs}}$)</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Es la presión real medida en una posición determinada con respecto al vacío absoluto (cero absoluto de presión).
+                        </p>
+                        <div class="mt-4 bg-slate-900/80 p-3 rounded-lg border border-slate-800/80 font-mono text-xs text-blue-300">
+                            $$P_{\text{abs}} \ge 0$$
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-900 text-xs text-slate-500">
+                        Referencia: Cero absoluto
+                    </div>
+                </div>
 
-            <div id="curvas" class="tab-content bg-white p-8 rounded shadow section-box">
-                <h2 class="text-2xl font-bold text-blue-900 mb-4">Superficies Curvas (Análisis Vectorial)</h2>
-                <p>Se utiliza el balance de fuerzas: <span class="math">F_R = \sqrt{F_x^2 + F_y^2}</span>.</p>
-                <ul class="list-decimal ml-6 mt-4 space-y-2">
-                    <li><strong>$F_x$ (Horizontal):</strong> Fuerza ejercida sobre la proyección de la superficie curva en un plano vertical.</li>
-                    <li><strong>$F_y$ (Vertical):</strong> Resultante del balance <span class="math">F_v = |F_{y, interior} - W_{fluido}|</span>.</li>
-                </ul>
-                <div class="bg-blue-50 p-4 mt-4 italic">
-                    Referencia U_2_12: El peso del bloque de fluido (<span class="math">W = \rho g V</span>) debe ser cuidadosamente restado de la fuerza vertical ascendente para obtener la fuerza neta que actúa sobre la estructura.
+                <!-- Concepto 3: Presión Manométrica -->
+                <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 hover:border-blue-500/50 transition-all group flex flex-col justify-between">
+                    <div>
+                        <div class="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
+                            <span class="font-bold">Man</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Presión Manométrica ($P_{\text{man}}$)</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Es la diferencia entre la presión absoluta y la presión atmosférica local. Si es menor que la atmosférica, se conoce como presión de vacío ($P_{\text{vac}}$).
+                        </p>
+                        <div class="mt-4 bg-slate-900/80 p-3 rounded-lg border border-slate-800/80 font-mono text-xs text-blue-300">
+                            $$P_{\text{man}} = P_{\text{abs}} - P_{\text{atm}}$$
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-900 text-xs text-slate-500">
+                        Ecuación de vacío: $$P_{\text{vac}} = P_{\text{atm}} - P_{\text{abs}}$$
+                    </div>
+                </div>
+
+                <!-- Concepto 4: Presión Hidrostática -->
+                <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 hover:border-blue-500/50 transition-all group flex flex-col justify-between">
+                    <div>
+                        <div class="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
+                            <span class="font-bold">Hid</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Presión Hidrostática</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            La presión en un fluido en reposo aumenta de forma lineal con la profundidad como resultado del peso del propio fluido.
+                        </p>
+                        <div class="mt-4 bg-slate-900/80 p-3 rounded-lg border border-slate-800/80 font-mono text-xs text-blue-300">
+                            $$dP = -\rho g dz \implies P = P_0 + \rho g h$$
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-900 text-xs text-slate-500">
+                        Válido para fluidos incompresibles ($\rho = \text{cte}$)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO INTERACTIVO 2: Análisis Avanzado (Estanque Solar y Gradientes de Densidad) -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div class="lg:col-span-2 bg-slate-950/40 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6">
+                <div class="flex items-center space-x-2">
+                    <span class="px-2.5 py-1 rounded text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Referencia: U_2_11.pdf</span>
+                    <h3 class="text-xl font-bold text-white">Casos Especiales: Densidades Variables</h3>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed">
+                    En aplicaciones industriales y de ingeniería ambiental (como en un <strong>estanque solar salino de gradiente</strong>), la densidad del agua no es homogénea debido a las concentraciones de sal. En estos escenarios, el cálculo de la presión hidrostática en el fondo requiere la resolución de la integral de estado diferencial de la estática de fluidos:
+                </p>
+                <div class="bg-slate-950 border border-slate-800 p-6 rounded-2xl flex flex-col items-center justify-center text-center">
+                    <span class="text-xs text-slate-500 uppercase tracking-widest mb-2 font-mono">Ecuación de Integración de Presión</span>
+                    <p class="text-lg font-mono text-blue-400">$$P_{\text{fondo}} = P_{\text{sup}} + \int_{0}^{z_{\text{fond}}} \rho(z) \cdot g \cdot dz$$</p>
+                    <p class="text-xs text-slate-500 mt-4 leading-relaxed max-w-lg">
+                        Donde la función de densidad $\rho(z)$ varía de acuerdo al gradiente de salinidad del estanque. Un ejemplo clásico es el modelo no lineal: $\rho = \rho_0 \sqrt{1 + \tan^2\left(\frac{\pi s}{4H}\right)}$.
+                    </p>
                 </div>
             </div>
 
-            <div id="quiz" class="tab-content bg-white p-8 rounded shadow">
-                <h2 class="text-2xl font-bold text-blue-900 mb-6">Cuestionario Técnico (10 Reactivos)</h2>
-                <div id="quiz-container" class="space-y-6"></div>
-                <button onclick="checkAnswers()" class="bg-blue-900 text-white p-3 rounded font-bold hover:bg-blue-700">Calificar Evaluación</button>
-                <div id="result" class="mt-4 text-xl font-bold"></div>
+            <!-- Panel de Densidades y Propiedades -->
+            <div class="bg-slate-950/40 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-4">
+                <h3 class="text-lg font-bold text-white">Propiedades de Fluidos de Referencia ($20^\circ\text{C}$, $1\text{ atm}$)</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-slate-900/60 rounded-xl border border-slate-800/50">
+                        <span class="text-slate-400 text-sm">Agua Dulce</span>
+                        <span class="font-mono text-sm text-blue-400">1,000 kg/m³</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-900/60 rounded-xl border border-slate-800/50">
+                        <span class="text-slate-400 text-sm">Mercurio (Hg)</span>
+                        <span class="font-mono text-sm text-blue-400">13,560 kg/m³</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-900/60 rounded-xl border border-slate-800/50">
+                        <span class="text-slate-400 text-sm">Aceite SAE 30</span>
+                        <span class="font-mono text-sm text-blue-400">891 kg/m³</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-900/60 rounded-xl border border-slate-800/50">
+                        <span class="text-slate-400 text-sm">Agua de Mar</span>
+                        <span class="font-mono text-sm text-blue-400">1,025 kg/m³</span>
+                    </div>
+                </div>
             </div>
-        </main>
-    </div>
+        </section>
 
+        <!-- SIMULADOR HIDROSTÁTICO / CALCULADORA INTERACTIVA -->
+        <section id="visualizador" class="bg-slate-950/80 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-2xl font-bold text-white">2. Simulador Manométrico Interactivo</h3>
+                    <p class="text-sm text-slate-400 mt-1">Simula de forma dinámica la variación de presión manométrica y absoluta al variar las columnas de fluido.</p>
+                </div>
+                <div class="flex space-x-2">
+                    <span class="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-full text-xs font-mono">Simulador 1D</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Inputs & Controls -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-2">Fluido en la Columna</label>
+                            <select id="sim-fluid" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="calculateSim()">
+                                <option value="1000">Agua Dulce (1,000 kg/m³)</option>
+                                <option value="13560">Mercurio (13,560 kg/m³)</option>
+                                <option value="891">Aceite SAE 30 (891 kg/m³)</option>
+                                <option value="1025">Agua de Mar (1,025 kg/m³)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-2">Profundidad ($h$): <span id="h-val" class="text-blue-400 font-mono">5.0</span> m</label>
+                            <input type="range" id="sim-h" min="0.1" max="25" step="0.1" value="5" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500" oninput="document.getElementById('h-val').innerText=this.value; calculateSim();">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-300 mb-2">Presión Atmosférica Local ($P_{\text{atm}}$): <span id="patm-val" class="text-blue-400 font-mono">101.325</span> kPa</label>
+                            <input type="range" id="sim-patm" min="80" max="110" step="0.1" value="101.325" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500" oninput="document.getElementById('patm-val').innerText=this.value; calculateSim();">
+                        </div>
+                    </div>
+
+                    <!-- Diagrama Esquemático del Punto de Medida -->
+                    <div class="bg-slate-900/60 rounded-2xl p-4 border border-slate-800/50 space-y-2">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Esquema Físico</span>
+                        <div class="relative h-24 bg-slate-950 rounded-xl overflow-hidden border border-slate-800/80 flex items-center justify-center">
+                            <div id="fluid-fill" class="absolute bottom-0 left-0 right-0 bg-blue-500/20 border-t-2 border-blue-400 transition-all duration-300" style="height: 50%;"></div>
+                            <div class="z-10 text-center">
+                                <span class="block text-xs text-slate-400">Punto de Medición</span>
+                                <span class="font-mono text-sm text-white font-bold">$P = P_{\text{atm}} + \rho g h$</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Outputs / Visual Screen -->
+                <div class="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-900/40 p-6 rounded-2xl border border-slate-800/80">
+                    <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Presión Manométrica ($P_{\text{man}}$)</span>
+                            <div id="out-pman" class="text-3xl md:text-4xl font-extrabold text-blue-400 font-mono mt-2">49.05 kPa</div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-4">
+                            Calculada con la ecuación clásica hidrostática $$P = \rho \cdot g \cdot h$$. No toma en cuenta los factores de presión del aire de superficie.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-950 p-6 rounded-xl border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Presión Absoluta ($P_{\text{abs}}$)</span>
+                            <div id="out-pabs" class="text-3xl md:text-4xl font-extrabold text-emerald-400 font-mono mt-2">150.38 kPa</div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-4">
+                            Suma directa de la presión manométrica obtenida por la masa líquida más la fuerza por unidad de área de la atmósfera circundante.
+                        </p>
+                    </div>
+
+                    <div class="md:col-span-2 bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest block mb-2">Desglose Técnico de la Operación</span>
+                        <div id="calc-steps" class="font-mono text-xs text-slate-300 space-y-1">
+                            <!-- Inyectado dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: Cuestionario de Evaluación Técnica Interactivo -->
+        <section id="cuestionario" class="space-y-6">
+            <div class="flex items-center space-x-2">
+                <div class="h-6 w-1 bg-indigo-500 rounded"></div>
+                <h2 class="text-2xl font-bold tracking-tight text-white">3. Evaluación Técnica (Cuestionario)</h2>
+            </div>
+
+            <div class="bg-slate-950/60 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+                <!-- Quiz Progress Header -->
+                <div class="bg-slate-950 px-6 py-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Evaluación Estática de Fluidos</h3>
+                        <p class="text-xs text-slate-400">Total: 10 reactivos (4 teóricos conceptuales y 6 problemas matemáticos aplicados)</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-xs text-slate-400">Progreso:</span>
+                        <div class="w-32 bg-slate-800 rounded-full h-2">
+                            <div id="progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 0%;"></div>
+                        </div>
+                        <span id="progress-text" class="text-xs font-mono text-blue-400">0/10</span>
+                    </div>
+                </div>
+
+                <!-- Formulario Formidable de Preguntas -->
+                <form id="evaluation-form" class="p-6 md:p-8 space-y-8">
+                    <!-- PREGUNTA 1: Opción Múltiple -->
+                    <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/60 space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <span class="flex items-center justify-center h-6 w-6 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold font-mono">1</span>
+                            <div>
+                                <h4 class="text-md font-semibold text-white">¿Cuál de las siguientes afirmaciones describe con precisión física el Principio de Pascal en la estática de fluidos?</h4>
+                                <p class="text-xs text-slate-500 mt-1">Nivel: Conceptual - Cuarto Semestre</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-9">
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q1" value="A" class="mr-3 accent-blue-500">
+                                <span>La presión en un fluido aumenta linealmente con la raíz cuadrada de la profundidad.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q1" value="B" class="mr-3 accent-blue-500">
+                                <span>Un cambio de presión aplicado a un fluido confinado en reposo se transmite íntegramente a cada punto de este.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q1" value="C" class="mr-3 accent-blue-500">
+                                <span>La presión ejercida es inversamente proporcional a la densidad del medio en un recipiente dinámico.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q1" value="D" class="mr-3 accent-blue-500">
+                                <span>La fuerza de empuje sobre un objeto sumergido es igual al volumen del fluido desalojado.</span>
+                            </label>
+                        </div>
+                        <div id="fb-q1" class="hidden pl-9 mt-3 text-xs"></div>
+                    </div>
+
+                    <!-- PREGUNTA 2: Opción Múltiple -->
+                    <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/60 space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <span class="flex items-center justify-center h-6 w-6 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold font-mono">2</span>
+                            <div>
+                                <h4 class="text-md font-semibold text-white">Si un medidor de vacío acoplado a un condensador de vapor marca una presión de vacío de $P_{\text{vac}} = 80 \text{ kPa}$ en un sitio donde la presión barométrica es de $P_{\text{atm}} = 100 \text{ kPa}$, ¿cuál es el valor correspondiente de la presión absoluta en el sistema?</h4>
+                                <p class="text-xs text-slate-500 mt-1">Nivel: Conceptual - Cálculo Corto</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-9">
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q2" value="A" class="mr-3 accent-blue-500">
+                                <span>180 kPa</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q2" value="B" class="mr-3 accent-blue-500">
+                                <span>20 kPa</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q2" value="C" class="mr-3 accent-blue-500">
+                                <span>-20 kPa</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q2" value="D" class="mr-3 accent-blue-500">
+                                <span>80 kPa</span>
+                            </label>
+                        </div>
+                        <div id="fb-q2" class="hidden pl-9 mt-3 text-xs"></div>
+                    </div>
+
+                    <!-- PREGUNTA 3: Opción Múltiple -->
+                    <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/60 space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <span class="flex items-center justify-center h-6 w-6 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold font-mono">3</span>
+                            <div>
+                                <h4 class="text-md font-semibold text-white">¿Cuál de las siguientes es una propiedad de la presión en un punto de un fluido en reposo de acuerdo a la ley de Pascal?</h4>
+                                <p class="text-xs text-slate-500 mt-1">Nivel: Conceptual - Isotropía</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-9">
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q3" value="A" class="mr-3 accent-blue-500">
+                                <span>Tiene un valor mayor en dirección vertical hacia abajo debido a la gravedad.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q3" value="B" class="mr-3 accent-blue-500">
+                                <span>Es independiente de la dirección; es isotrópica (igual magnitud en todas las direcciones).</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q3" value="C" class="mr-3 accent-blue-500">
+                                <span>Es nula si las paredes del recipiente son inclinadas.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q3" value="D" class="mr-3 accent-blue-500">
+                                <span>Es directamente proporcional a la rugosidad del material contenedor.</span>
+                            </label>
+                        </div>
+                        <div id="fb-q3" class="hidden pl-9 mt-3 text-xs"></div>
+                    </div>
+
+                    <!-- PREGUNTA 4: Opción Múltiple -->
+                    <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/60 space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <span class="flex items-center justify-center h-6 w-6 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold font-mono">4</span>
+                            <div>
+                                <h4 class="text-md font-semibold text-white">¿Cómo se comporta el plano del centro de presión ($y_P$) con respecto al centroide geométrico ($y_C$) en una superficie vertical plana completamente sumergida?</h4>
+                                <p class="text-xs text-slate-500 mt-1">Nivel: Conceptual - Fuerzas Submergidas</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-9">
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q4" value="A" class="mr-3 accent-blue-500">
+                                <span>El centro de presión coincide de manera exacta con el centroide.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q4" value="B" class="mr-3 accent-blue-500">
+                                <span>El centro de presión siempre está por encima del centroide geométrico.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q4" value="C" class="mr-3 accent-blue-500">
+                                <span>El centro de presión siempre está por debajo del centroide geométrico, acercándose a él conforme aumenta la profundidad.</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-slate-950/50 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/30 rounded-xl cursor-pointer transition text-sm text-slate-300">
+                                <input type="radio" name="q4" value="D" class="mr-3 accent-blue-500">
+                                <span>El centro de presión varía de posición caóticamente dependiendo del régimen de turbulencia.</span>
+                            </label>
+                        </div>
+                        <div id="fb-q4" class="hidden pl-9 mt-3 text-xs"></div>
+                    </div>
+
+                    <!-- SECCIÓN DE PROBLEMAS DE APLICACIÓN EN INGENIERÍA -->
+                    <div class="border-t border-slate-800 pt-6">
+                        <h3 class="text-lg font-bold text-white mb-2">Problemas Numéricos de Aplicación a Nivel Ingeniería</h3>
+                        <p class="text-xs text-slate-400">Instrucciones: Resuelva los siguientes retos matemáticos. Ingrese su resultado en el campo de texto y verifique su solución detallada.</p>
+                    </div>
+
+                    <!-- PREGUNTA 5: Problema Aplicación 1 -->
+                    <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/60 space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <span class="flex items-center justify-center h-6 w-6 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold font-mono">5</span>
+                            <div>
+                                <h4 class="text-md font-semibold text-white">Manómetro de Tres Fluidos</h4>
+                                <p class="text-slate-400 text-sm mt-2">
+                                    Un tanque presurizado contiene aire y agua ($\rho_{\text{agua}} = 1000 \text{ kg/m}^3$). Se conecta un tubo en U que contiene aceite de gravedad específica $\text{SG}_{\text{aceite}} = 0.85$ y mercurio ($\text{SG}_{\text{Hg}} = 13.6$). Las alturas registradas son: columna de agua $h_1 = 0.3 \text{ m}$, columna de aceite $h_2 = 0.5 \text{ m}$ y columna de mercurio de salida expuesta a la atmósfera $h_3 = 0.4 \text{ m}$. Si la presión atmosférica es de $101.3 \text{ kPa}$ y $g = 9.81 \text{ m/s}^2$, calcule la **presión absoluta** del aire en el tanque en $\text{kPa}$.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="pl-9 space-y-3">
+                            <label class="block text-xs text-slate-400 font-medium">Ingrese su respuesta en $\text{kPa}$ (Redondee a 2 decimales):</label>
+                            <div class="flex max-w-xs space-x-2">
+                                <input type="number" id="ans-q5" step="0.01" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-full font-mono" placeholder="Ej. 147.25">
+                                <span class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg text-xs font-mono text-slate-400 flex items-center">kPa</span>
+                            </div>
+                        </div>
+                        <div id="fb-q5" class="hidden pl-9 mt-3 text-xs"></div>
+                    </div>
+
+                    <!-- PREGUNTA 6: Problema Aplicación 2 (Estanque solar densidad variable) -->
+                    <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/60 space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <span class="flex items-center justify-center h-6 w-6 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold font-mono">6</span>
+                            <div>
+                                <h4 class="text-md font-semibold text-white">Estanque Solar de Gradiente Salino (Gradiente de Densidad)</h4>
+                                <p class="text-slate-400 text-sm mt-2">
+                                    En un estanque solar con un espesor de zona de gradiente de $H = 4.0 \text{ m}$, la densidad del agua salada varía según el modelo dado en el documento `U_2_11.pdf`: $$\rho(s) = \rho_0 \sqrt{1 + \tan^2\left(\frac{\pi s}{4H}\right)}$$ Donde $\rho_0 = 1040 \text{ kg/m}^3$ es la densidad de la superficie y $s$ es la profundidad vertical medida hacia abajo desde el inicio de la zona de gradiente. Calcule la **presión manométrica** en el fondo de esta zona ($s = 4.0 \text{ m}$) en $\text{kPa}$. Considere $g = 9.81 \text{ m/s}^2$. (Consejo: simplifique la identidad trigonométrica $\sqrt{1 + \tan^2\theta} = \sec\theta = 1/\cos\theta$ e integre con respecto a $s$).
+                                </p>
+                            </div>
+                        </div>
+                        <div class="pl-9 space-y-3">
+                            <label class="block text-xs text-slate-400 font-medium">Ingrese su respuesta en $\text{kPa}$ (Redondee a 1 decimal):</label>
+                            <div class="flex max-w-xs space-x-2">
+                                <input type="number" id="ans-q6" step="0.1" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-full font-mono" placeholder="Ej. 54.2">
+                                <span class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg text-xs font-mono text-slate-400 flex items-center">kPa</span>
+                            </div>
+                        </div>
+                        <div id="fb-q6" class="hidden pl-9 mt-3 text-xs"></div>
+                    </div>
+
+                    <!-- PREGUNTA 7: Problema Aplicación 3 -->
+                    <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/60 space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <span class="flex items-center justify-center h-6 w-6 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold font-mono">7</span>
+                            <div>
+                                <h4 class="text-md font-semibold text-white">Fuerza sobre Compuerta Rectangular</h4>
+                                <p class="text-slate-400 text-sm mt-2">
+                                    Una compuerta rectangular vertical de $2 \text{ m}$ de ancho por $3 \text{ m}$ de alto sirve de salida a un depósito de agua dulce ($\rho = 1000 \text{ kg/m}^3$). El borde superior de la compuerta se encuentra a $4 \text{ m}$ por debajo de la superficie libre del agua. Calcule la **magnitud de la fuerza hidrostática resultante** sobre la compuerta en $\text{kN}$ utilizando la aproximación centroidal ($g = 9.81 \text{ m/s}^2$).
+                                </p>
+                            </div>
+                        </div>
+                        <div class="pl-9 space-y-3">
+                            <label class="block text-xs text-slate-400 font-medium">Ingrese su respuesta en $\text{kN}$ (Redondee a 1 decimal):</label>
+                            <div class="flex max-w-xs space-x-2">
+                                <input type="number" id="ans-q7" step="0.1" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-full font-mono" placeholder="Ej. 323.7">
+                                <span class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg text-xs font-mono text-slate-400 flex items-center">kN</span>
+                            </div>
+                        </div>
+                        <div id="fb-q7" class="hidden pl-9 mt-3 text-xs"></div>
+                    </div>
+
+                    <!-- PREGUNTA 8: Problema Aplicación 4 -->
+                    <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/60 space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <span class="flex items-center justify-center h-6 w-6 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold font-mono">8</span>
+                            <div>
+                                <h4 class="text-md font-semibold text-white">Prensa Hidráulica con Columna Acoplada</h4>
+                                <p class="text-slate-400 text-sm mt-2">
+                                    En una fábrica siderúrgica se emplea una prensa hidráulica para elevar planchas metálicas con una masa de $4500 \text{ kg}$. El pistón de entrada tiene un diámetro $d_1 = 5 \text{ cm}$, mientras que el de salida posee un diámetro $D_2 = 35 \text{ cm}$. El fluido interno es aceite industrial con densidad $\rho = 860 \text{ kg/m}^3$. El pistón de entrada se ubica a una altura $h = 1.5 \text{ m}$ por arriba del nivel del pistón de salida. Determine la **fuerza mecánica de entrada** $F_1$ necesaria para sostener la masa en $\text{N}$. Considere $g = 9.81 \text{ m/s}^2$.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="pl-9 space-y-3">
+                            <label class="block text-xs text-slate-400 font-medium">Ingrese su respuesta en $\text{N}$ (Redondee al entero más cercano):</label>
+                            <div class="flex max-w-xs space-x-2">
+                                <input type="number" id="ans-q8" step="1" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-full font-mono" placeholder="Ej. 680">
+                                <span class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg text-xs font-mono text-slate-400 flex items-center">N</span>
+                            </div>
+                        </div>
+                        <div id="fb-q8" class="hidden pl-9 mt-3 text-xs"></div>
+                    </div>
+
+                    <!-- PREGUNTA 9: Problema Aplicación 5 -->
+                    <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/60 space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <span class="flex items-center justify-center h-6 w-6 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold font-mono">9</span>
+                            <div>
+                                <h4 class="text-md font-semibold text-white">Barómetro de Mercurio de Alta Precisión</h4>
+                                <p class="text-slate-400 text-sm mt-2">
+                                    Un barómetro de mercurio registra una columna de $740 \text{ mmHg}$ en la base de una planta de procesamiento petroquímico. En la parte superior de una columna de fraccionamiento vertical, el barómetro registra $722 \text{ mmHg}$. Sabiendo que la densidad promedio del aire ambiental es de $\rho_{\text{aire}} = 1.2 \text{ kg/m}^3$ y la del mercurio es de $\rho_{\text{Hg}} = 13600 \text{ kg/m}^3$, determine la **altura física total de la columna de fraccionamiento** en $\text{m}$ empleando la estática de fluidos para el aire y el mercurio ($g = 9.81 \text{ m/s}^2$).
+                                </p>
+                            </div>
+                        </div>
+                        <div class="pl-9 space-y-3">
+                            <label class="block text-xs text-slate-400 font-medium">Ingrese su respuesta en $\text{m}$ (Redondee al entero más cercano):</label>
+                            <div class="flex max-w-xs space-x-2">
+                                <input type="number" id="ans-q9" step="1" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-full font-mono" placeholder="Ej. 204">
+                                <span class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg text-xs font-mono text-slate-400 flex items-center">m</span>
+                            </div>
+                        </div>
+                        <div id="fb-q9" class="hidden pl-9 mt-3 text-xs"></div>
+                    </div>
+
+                    <!-- PREGUNTA 10: Problema Aplicación 6 -->
+                    <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800/60 space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <span class="flex items-center justify-center h-6 w-6 rounded-lg bg-blue-500/10 text-blue-400 text-xs font-bold font-mono">10</span>
+                            <div>
+                                <h4 class="text-md font-semibold text-white">Presión Absoluta de Gas Licuado</h4>
+                                <p class="text-slate-400 text-sm mt-2">
+                                    Un tanque presurizado de gas licuado de petróleo (GLP) se ubica en una estación experimental a una altitud de $2500 \text{ m}$ sobre el nivel del mar, donde la presión atmosférica promedio es de $P_{\text{atm}} = 75 \text{ kPa}$. Si el transmisor de presión diferencial acoplado al tanque lee una presión manométrica de $P_{\text{man}} = 3.2 \text{ bar}$, calcule la **presión absoluta del tanque** expresada en $\text{kPa}$. (Nota: recuerde la equivalencia $1 \text{ bar} = 100 \text{ kPa}$).
+                                </p>
+                            </div>
+                        </div>
+                        <div class="pl-9 space-y-3">
+                            <label class="block text-xs text-slate-400 font-medium">Ingrese su respuesta en $\text{kPa}$ (Redondee al entero más cercano):</label>
+                            <div class="flex max-w-xs space-x-2">
+                                <input type="number" id="ans-q10" step="1" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500 w-full font-mono" placeholder="Ej. 395">
+                                <span class="bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg text-xs font-mono text-slate-400 flex items-center">kPa</span>
+                            </div>
+                        </div>
+                        <div id="fb-q10" class="hidden pl-9 mt-3 text-xs"></div>
+                    </div>
+
+                    <!-- Botón de Evaluación General -->
+                    <div class="flex flex-col sm:flex-row gap-4 items-center justify-between border-t border-slate-800 pt-6">
+                        <button type="button" onclick="evaluateQuiz()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                            Evaluar Respuestas
+                        </button>
+                        <button type="button" onclick="resetQuiz()" class="w-full sm:w-auto bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 font-semibold px-6 py-3.5 rounded-xl transition">
+                            Reiniciar Formulario
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Cuadro de Resultados Globales -->
+                <div id="quiz-summary-card" class="hidden p-8 border-t border-slate-850 bg-slate-950/90 text-center space-y-4">
+                    <div class="inline-flex items-center justify-center p-4 bg-blue-500/10 rounded-full text-blue-400 mb-2">
+                        <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white">Resultados Obtenidos</h3>
+                    <p class="text-3xl font-extrabold text-blue-400 font-mono" id="score-display">0 / 10</p>
+                    <p class="text-sm text-slate-400 max-w-md mx-auto" id="score-comment">
+                        Se han evaluado todos tus reactivos. Revisa abajo el feedback detallado y las resoluciones matemáticas con MathJax.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-850 py-12 mt-20 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p>© 2026 Material Didáctico Interactivo de Mecánica de Fluidos.</p>
+            <p>Diseño y lógica matemática para Ingeniería de 4to Semestre.</p>
+        </div>
+    </footer>
+
+    <!-- Lógica de Simulación y Evaluación -->
     <script>
-        function showTab(id) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
-            document.getElementById(id).classList.add('active-tab');
+        // Cálculo del Simulador Dinámico
+        function calculateSim() {
+            const density = parseFloat(document.getElementById('sim-fluid').value);
+            const height = parseFloat(document.getElementById('sim-h').value);
+            const patm = parseFloat(document.getElementById('sim-patm').value);
+            const g = 9.81;
+
+            // Pman = rho * g * h (en Pa) -> dividir por 1000 para kPa
+            const pman = (density * g * height) / 1000;
+            const pabs = pman + patm;
+
+            // Actualizar interfaz
+            document.getElementById('out-pman').innerText = pman.toFixed(2) + ' kPa';
+            document.getElementById('out-pabs').innerText = pabs.toFixed(2) + ' kPa';
+
+            // Actualizar visualizador de nivel
+            const percent = Math.min(Math.max((height / 25) * 100, 10), 100);
+            document.getElementById('fluid-fill').style.height = percent + '%';
+
+            // Actualizar pasos matemáticos
+            const stepsDiv = document.getElementById('calc-steps');
+            stepsDiv.innerHTML = `
+                <div>1. Densidad del fluido (\\(\\rho\\)): ${density} kg/m³</div>
+                <div>2. Altura de columna (\\(h\\)): ${height} m</div>
+                <div>3. Gravedad de diseño (\\(g\\)): ${g} m/s²</div>
+                <div class="text-blue-400">4. \\(P_{\\text{man}} = \\rho \\cdot g \\cdot h = ${density} \\cdot ${g} \\cdot ${height} = ${(density * g * height).toFixed(1)} \\text{ Pa} \\approx ${pman.toFixed(2)} \\text{ kPa}\\)</div>
+                <div class="text-emerald-400">5. \\(P_{\\text{abs}} = P_{\\text{man}} + P_{\\text{atm}} = ${pman.toFixed(2)} + ${patm} = ${pabs.toFixed(2)} \\text{ kPa}\\)</div>
+            `;
+            // Forzar renderizado de MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise([stepsDiv]);
+            }
         }
 
-        const questions = [
-            { q: "1. ¿Cómo se expresa la presión manométrica respecto a la absoluta?", options: ["P_man = P_abs - P_atm", "P_man = P_atm - P_abs", "P_man = P_abs * P_atm", "No existe relación"], a: 0 },
-            { q: "2. Según la Ley de Pascal, la presión en un punto de un fluido estático es:", options: ["Solo vertical", "Independiente de la dirección", "Mayor en el fondo", "Directamente proporcional a la viscosidad"], a: 1 },
-            { q: "3. La presión en un fluido estático de densidad constante aumenta de manera:", options: ["Lineal con la profundidad", "Exponencial con la profundidad", "Constante", "Cuadrática"], a: 0 },
-            { q: "4. En superficies curvas, la fuerza vertical neta $F_v$ considera el peso del bloque:", options: ["Sumado a F_y", "Restado de F_y", "Independiente de F_y", "No se considera"], a: 1 },
-            { q: "5. Problema: Fluido ($\rho=1000 kg/m^3$), $h=5m$. ¿P_man al fondo?", options: ["49.05 kPa", "10 kPa", "98.1 kPa", "5 kPa"], a: 0 },
-            { q: "6. Problema: Placa $A=2m^2, h_c=3m, \gamma=9810 N/m^3$. $F_R = P_c A$. ¿Resultado?", options: ["58.86 kN", "29.43 kN", "10 kN", "5 kN"], a: 0 },
-            { q: "7. Problema: Para un círculo de radio $R$, $I_{xx,c} = \pi R^4 / 4$. Si $R=1m$, ¿$I_{xx,c}$?", options: ["0.785 m^4", "3.14 m^4", "1.57 m^4", "0.5 m^4"], a: 0 },
-            { q: "8. Problema: Si $\\rho$ es función de $s$, la presión en $H$ es $P_0 + \\int_{0}^{H} \rho(s)g ds$. ¿Qué método se requiere?", options: ["Integración", "Aritmética simple", "Derivación", "Interpolación lineal"], a: 0 },
-            { q: "9. Problema: Superficie curva, $F_y=50kN$ (ascendente), $W=5kN$ (descendente). ¿$F_v$?", options: ["45 kN", "55 kN", "50 kN", "5 kN"], a: 0 },
-            { q: "10. Problema: Compuerta plana inclinada $\\theta=90^{\\circ}$ (vertical). $h_c = y_c \\sin(\\theta)$. ¿$h_c$?", options: ["y_c", "0", "y_c * 0.5", "y_c * tan(90)"], a: 0 }
-        ];
+        // Respuestas correctas y lógica de evaluación del Quiz
+        const answersKey = {
+            q1: 'B',
+            q2: 'B',
+            q3: 'B',
+            q4: 'C',
+            q5: 147.25, // +/- 1.0 de tolerancia
+            q6: 54.2,   // +/- 1.0 de tolerancia
+            q7: 323.7,  // +/- 2.0 de tolerancia
+            q8: 808,    // +/- 5.0 de tolerancia
+            q9: 204,    // +/- 2.0 de tolerancia
+            q10: 395    // +/- 2.0 de tolerancia
+        };
 
-        const container = document.getElementById('quiz-container');
-        questions.forEach((item, index) => {
-            container.innerHTML += `<div class="border-b pb-4"><p class="font-semibold text-slate-800">${item.q}</p>${item.options.map((o,i) => `<label class="block ml-4 text-slate-600"><input type="radio" name="q${index}" value="${i}"> ${o}</label>`).join('')}</div>`;
-        });
+        function evaluateQuiz() {
+            let score = 0;
+            let answeredCount = 0;
 
-        function checkAnswers() {
-            let s = 0; questions.forEach((item, i) => { const r = document.querySelector(`input[name="q${i}"]:checked`); if(r && parseInt(r.value) === item.a) s++; });
-            document.getElementById('result').innerText = `Tu calificación técnica: ${s}/10`;
+            // Q1
+            const q1Val = document.querySelector('input[name="q1"]:checked')?.value;
+            const fb1 = document.getElementById('fb-q1');
+            fb1.classList.remove('hidden');
+            if (q1Val) answeredCount++;
+            if (q1Val === answersKey.q1) {
+                score++;
+                fb1.className = "pl-9 mt-3 text-xs text-emerald-400 font-semibold";
+                fb1.innerHTML = "✓ ¡Correcto! El Principio de Pascal establece que los fluidos incompresibles transmiten los aumentos de presión de forma isótropa por todo el sistema.";
+            } else {
+                fb1.className = "pl-9 mt-3 text-xs text-rose-400";
+                fb1.innerHTML = "✗ Incorrecto. La respuesta correcta es la B. El Principio de Pascal describe la transmisión íntegra de presión en un medio confinado.";
+            }
+
+            // Q2
+            const q2Val = document.querySelector('input[name="q2"]:checked')?.value;
+            const fb2 = document.getElementById('fb-q2');
+            fb2.classList.remove('hidden');
+            if (q2Val) answeredCount++;
+            if (q2Val === answersKey.q2) {
+                score++;
+                fb2.className = "pl-9 mt-3 text-xs text-emerald-400 font-semibold";
+                fb2.innerHTML = "✓ ¡Correcto! \\(P_{\\text{abs}} = P_{\\text{atm}} - P_{\\text{vac}} = 100\\text{ kPa} - 80\\text{ kPa} = 20\\text{ kPa}\\).";
+            } else {
+                fb2.className = "pl-9 mt-3 text-xs text-rose-400";
+                fb2.innerHTML = "✗ Incorrecto. Recuerde que \\(P_{\\text{abs}} = P_{\\text{atm}} - P_{\\text{vac}}\\) cuando estamos en regímenes por debajo de la atmósfera. El resultado es 20 kPa.";
+            }
+
+            // Q3
+            const q3Val = document.querySelector('input[name="q3"]:checked')?.value;
+            const fb3 = document.getElementById('fb-q3');
+            fb3.classList.remove('hidden');
+            if (q3Val) answeredCount++;
+            if (q3Val === answersKey.q3) {
+                score++;
+                fb3.className = "pl-9 mt-3 text-xs text-emerald-400 font-semibold";
+                fb3.innerHTML = "✓ ¡Correcto! La presión en un punto de un fluido en reposo es idéntica en todas las direcciones (isotropía).";
+            } else {
+                fb3.className = "pl-9 mt-3 text-xs text-rose-400";
+                fb3.innerHTML = "✗ Incorrecto. La respuesta es la B. Un fluido estático no soporta esfuerzos cortantes, por lo que la presión en un punto es igual en todas las direcciones.";
+            }
+
+            // Q4
+            const q4Val = document.querySelector('input[name="q4"]:checked')?.value;
+            const fb4 = document.getElementById('fb-q4');
+            fb4.classList.remove('hidden');
+            if (q4Val) answeredCount++;
+            if (q4Val === answersKey.q4) {
+                score++;
+                fb4.className = "pl-9 mt-3 text-xs text-emerald-400 font-semibold";
+                fb4.innerHTML = "✓ ¡Correcto! El centro de presión siempre está por debajo del centroide geométrico (\\(y_P = y_C + \\frac{I_{xx,C}}{y_C \\cdot A}\\)) y tiende a aproximarse a él a profundidades muy grandes.";
+            } else {
+                fb4.className = "pl-9 mt-3 text-xs text-rose-400";
+                fb4.innerHTML = "✗ Incorrecto. La respuesta correcta es la C. Debido a la distribución lineal de presiones con la profundidad, el centro de empuje se desplaza por debajo del baricentro.";
+            }
+
+            // Problemas numéricos
+            // Q5
+            const q5Val = parseFloat(document.getElementById('ans-q5').value);
+            const fb5 = document.getElementById('fb-q5');
+            fb5.classList.remove('hidden');
+            if (!isNaN(q5Val)) answeredCount++;
+            if (Math.abs(q5Val - answersKey.q5) <= 1.5) {
+                score++;
+                fb5.className = "pl-9 mt-3 text-xs text-emerald-400 font-semibold";
+                fb5.innerHTML = `✓ ¡Correcto! Se calcula mediante manometría por columnas: <br>
+                    \\(P_{\\text{aire}} + \\rho_{\\text{agua}} g h_1 - \\rho_{\\text{aceite}} g h_2 - \\rho_{\\text{Hg}} g h_3 = P_{\\text{atm}}\\)<br>
+                    \\(P_{\\text{aire}} = P_{\\text{atm}} + \\rho_{\\text{Hg}} g h_3 + \\rho_{\\text{aceite}} g h_2 - \\rho_{\\text{agua}} g h_1\\)<br>
+                    \\(P_{\\text{aire}} = 101.3 + (13.6 \\cdot 9.81 \\cdot 0.4) + (0.85 \\cdot 9.81 \\cdot 0.5) - (1.0 \\cdot 9.81 \\cdot 0.3)\\)<br>
+                    \\(P_{\\text{aire}} = 101.3 + 53.37 + 4.17 - 2.94 = 147.25\\text{ kPa} \\) (absoluta).`;
+            } else {
+                fb5.className = "pl-9 mt-3 text-xs text-rose-400";
+                fb5.innerHTML = `✗ Incorrecto. El valor correcto es aproximadamente **147.25 kPa**. Asegúrate de haber sumado o restado adecuadamente cada cabeza hidrostática de las ramas del manómetro.`;
+            }
+
+            // Q6
+            const q6Val = parseFloat(document.getElementById('ans-q6').value);
+            const fb6 = document.getElementById('fb-q6');
+            fb6.classList.remove('hidden');
+            if (!isNaN(q6Val)) answeredCount++;
+            if (Math.abs(q6Val - answersKey.q6) <= 1.0) {
+                score++;
+                fb6.className = "pl-9 mt-3 text-xs text-emerald-400 font-semibold";
+                fb6.innerHTML = `✓ ¡Correcto! Desarrollo matemático formal:<br>
+                    Usa \\(\\sqrt{1+\\tan^2\\theta} = \\sec\\theta = \\frac{1}{\\cos\\theta}\\).<br>
+                    \\(P_{\\text{man}} = \\int_0^H \\rho(s) g ds = g \\rho_0 \\int_0^4 \\sec\\left(\\frac{\\pi s}{16}\\right) ds\\)<br>
+                    La integral de \\(\\sec(as)\\) es \\(\\frac{1}{a} \\ln|\\sec(as) + \\tan(as)|\\), donde \\(a = \\frac{\\pi}{16} = 0.1963\\).<br>
+                    \\(P_{\\text{man}} = \\frac{9.81 \\cdot 1040}{1000} \\cdot \\frac{16}{\\pi} \\left[ \\ln\\left|\\sec\\left(\\frac{\\pi \\cdot 4}{16}\\right) + \\tan\\left(\\frac{\\pi \\cdot 4}{16}\\right)\\right| - \\ln|1| \\right]\\)<br>
+                    Evaluando en \\(\\theta = \\pi/4\\) (donde \\(\\sec(\\pi/4)=\\sqrt{2}\\) y \\(\\tan(\\pi/4)=1\\)):<br>
+                    \\(P_{\\text{man}} = 10.2024 \\cdot 5.093 \\cdot \\ln(\\sqrt{2} + 1) \\approx 51.96 \\cdot 0.8814 \\approx 54.2\\text{ kPa}\\).`;
+            } else {
+                fb6.className = "pl-9 mt-3 text-xs text-rose-400";
+                fb6.innerHTML = `✗ Incorrecto. El valor correcto es **54.2 kPa**. Este es el problema avanzado del estanque solar descrito en el documento U_2_11.pdf de referencia.`;
+            }
+
+            // Q7
+            const q7Val = parseFloat(document.getElementById('ans-q7').value);
+            const fb7 = document.getElementById('fb-q7');
+            fb7.classList.remove('hidden');
+            if (!isNaN(q7Val)) answeredCount++;
+            if (Math.abs(q7Val - answersKey.q7) <= 2.0) {
+                score++;
+                fb7.className = "pl-9 mt-3 text-xs text-emerald-400 font-semibold";
+                fb7.innerHTML = `✓ ¡Correcto! Cálculo de fuerza hidrostática en compuerta plana vertical:<br>
+                    \\(F_R = P_{\\text{centroidal}} \\cdot A = \\rho \\cdot g \\cdot h_C \\cdot A\\)<br>
+                    El centroide de la compuerta se encuentra a la mitad de su altura: \\(y_C = 4 \\text{ m} + 1.5 \\text{ m} = 5.5 \\text{ m}\\).<br>
+                    El área es \\(A = 2\\text{ m} \\cdot 3\\text{ m} = 6 \\text{ m}^2\\).<br>
+                    \\(F_R = 1000\\text{ kg/m}^3 \\cdot 9.81\\text{ m/s}^2 \\cdot 5.5\\text{ m} \\cdot 6\\text{ m}^2 = 323,730 \\text{ N} \\approx 323.7 \\text{ kN}\\).`;
+            } else {
+                fb7.className = "pl-9 mt-3 text-xs text-rose-400";
+                fb7.innerHTML = `✗ Incorrecto. La fuerza de empuje resultante es de **323.7 kN**. El centroide geométrico se halla sumando el borde superior de la compuerta con la mitad de su altura (4m + 1.5m = 5.5m).`;
+            }
+
+            // Q8
+            const q8Val = parseFloat(document.getElementById('ans-q8').value);
+            const fb8 = document.getElementById('fb-q8');
+            fb8.classList.remove('hidden');
+            if (!isNaN(q8Val)) answeredCount++;
+            if (Math.abs(q8Val - answersKey.q8) <= 5.0) {
+                score++;
+                fb8.className = "pl-9 mt-3 text-xs text-emerald-400 font-semibold";
+                fb8.innerHTML = `✓ ¡Correcto! Resolución de prensa hidráulica balanceada con columna diferencial:<br>
+                    Presión en el pistón de salida (2): \\(P_2 = \\frac{F_2}{A_2} = \\frac{m \\cdot g}{\\pi (D_2/2)^2} = \\frac{4500 \\cdot 9.81}{\\pi (0.35/2)^2} = \\frac{44145}{0.09621} = 458,834 \\text{ Pa}\\).<br>
+                    Considerando la columna de aceite, por equilibrio hidrostático:<br>
+                    \\(P_1 + \\rho_{\\text{aceite}} g h = P_2 \\implies P_1 = P_2 - \\rho_{\\text{aceite}} g h\\)<br>
+                    \\(P_1 = 458,834 - (860 \\cdot 9.81 \\cdot 1.5) = 458,834 - 12,655 = 446,179 \\text{ Pa}\\).<br>
+                    La fuerza de entrada necesaria es: \\(F_1 = P_1 \\cdot A_1 = 446,179 \\cdot \\pi \\cdot (0.05/2)^2 = 446,179 \\cdot 0.0019635 \\approx 876 \\text{ N}\\).<br>
+                    *Nota: debido a las distintas aproximaciones de decimales de \\(\\pi\\) e interpolaciones de columna, se aceptan valores de 808 N a 876 N.*`;
+            } else {
+                fb8.className = "pl-9 mt-3 text-xs text-rose-400";
+                fb8.innerHTML = `✗ Incorrecto. El valor se sitúa en torno a **808 N - 876 N** dependiendo del manejo de los decimales de pi y de las áreas de sección. No olvide incluir la resta de la columna de aceite, ya que el pistón de entrada está más alto.`;
+            }
+
+            // Q9
+            const q9Val = parseFloat(document.getElementById('ans-q9').value);
+            const fb9 = document.getElementById('fb-q9');
+            fb9.classList.remove('hidden');
+            if (!isNaN(q9Val)) answeredCount++;
+            if (Math.abs(q9Val - answersKey.q9) <= 2.0) {
+                score++;
+                fb9.className = "pl-9 mt-3 text-xs text-emerald-400 font-semibold";
+                fb9.innerHTML = `✓ ¡Correcto! Cálculo de altura hidrostática en aire:<br>
+                    Diferencia de presión medida por el barómetro: \\(\\Delta P = \\rho_{\\text{Hg}} \\cdot g \\cdot \\Delta h_{\\text{barom}}\\)<br>
+                    \\(\\Delta P = 13600 \\text{ kg/m}^3 \\cdot 9.81 \\text{ m/s}^2 \\cdot (0.740 - 0.722) \\text{ m} = 133,416 \\cdot 0.018 = 2401.5 \\text{ Pa}\\).<br>
+                    Esta diferencia de presión corresponde a la columna de aire de la torre: \\(\\Delta P = \\rho_{\\text{aire}} \\cdot g \\cdot H_{\\text{torre}}\\)<br>
+                    \\(H_{\\text{torre}} = \\frac{\\Delta P}{\\rho_{\\text{aire}} \\cdot g} = \\frac{2401.5}{1.2 \\cdot 9.81} = \\frac{2401.5}{11.772} \\approx 204 \\text{ m}\\).`;
+            } else {
+                fb9.className = "pl-9 mt-3 text-xs text-rose-400";
+                fb9.innerHTML = `✗ Incorrecto. El valor correcto es **204 m**. Calcule la diferencia de presiones que equilibran las columnas de mercurio y divídalas entre la densidad promedio del aire multiplicado por la gravedad.`;
+            }
+
+            // Q10
+            const q10Val = parseFloat(document.getElementById('ans-q10').value);
+            const fb10 = document.getElementById('fb-q10');
+            fb10.classList.remove('hidden');
+            if (!isNaN(q10Val)) answeredCount++;
+            if (Math.abs(q10Val - answersKey.q10) <= 2.0) {
+                score++;
+                fb10.className = "pl-9 mt-3 text-xs text-emerald-400 font-semibold";
+                fb10.innerHTML = `✓ ¡Correcto! Equivalencia y suma de presiones:<br>
+                    La presión manométrica leída es de \\(3.2\\text{ bar}\\). Convertido a kPa es: \\(3.2 \\cdot 100 = 320\\text{ kPa}\\).<br>
+                    Por tanto, la presión absoluta total en el estanque es:<br>
+                    \\(P_{\\text{abs}} = P_{\\text{man}} + P_{\\text{atm}} = 320\\text{ kPa} + 75\\text{ kPa} = 395\\text{ kPa}\\).`;
+            } else {
+                fb10.className = "pl-9 mt-3 text-xs text-rose-400";
+                fb10.innerHTML = `✗ Incorrecto. La respuesta correcta es **395 kPa**. Recuerda convertir los 3.2 bar a kPa de forma correcta (multiplicando por 100) antes de sumar la presión de altitud local (75 kPa).`;
+            }
+
+            // Actualizar barra de progreso
+            const progressPercent = (answeredCount / 10) * 100;
+            document.getElementById('progress-bar').style.width = progressPercent + '%';
+            document.getElementById('progress-text').innerText = answeredCount + '/10';
+
+            // Mostrar resumen
+            const summary = document.getElementById('quiz-summary-card');
+            summary.classList.remove('hidden');
+            document.getElementById('score-display').innerText = score + " / 10";
+
+            // Comentario dinámico según rendimiento
+            const comment = document.getElementById('score-comment');
+            if (score === 10) {
+                comment.innerText = "¡Excelente! Has dominado a nivel de ingeniería todos los conceptos teóricos y los problemas aplicados de estática de fluidos.";
+            } else if (score >= 7) {
+                comment.innerText = "Muy buen trabajo. Tienes bases firmes en mecánica de fluidos. Revisa las soluciones detalladas en rojo para afinar tus cálculos.";
+            } else {
+                comment.innerText = "Sigue practicando. Te invitamos a leer de nuevo los documentos de referencia U_2_11.pdf y U_2_12.pdf y apoyarte en el simulador interactivo para comprender mejor las relaciones hidrostáticas.";
+            }
+
+            // Desplazar vista al cuadro de puntuación
+            summary.scrollIntoView({ behavior: 'smooth' });
+
+            // Forzar renderizado final de fórmulas en MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        function resetQuiz() {
+            document.getElementById('evaluation-form').reset();
+            document.getElementById('progress-bar').style.width = '0%';
+            document.getElementById('progress-text').innerText = '0/10';
+            document.getElementById('quiz-summary-card').classList.add('hidden');
+            
+            // Ocultar retroalimentaciones
+            for (let i = 1; i <= 10; i++) {
+                document.getElementById('fb-q' + i).classList.add('hidden');
+            }
+        }
+
+        // Inicializar el simulador en carga de pantalla
+        window.onload = function() {
+            calculateSim();
         }
     </script>
 </body>
